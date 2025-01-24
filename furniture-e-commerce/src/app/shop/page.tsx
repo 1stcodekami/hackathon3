@@ -3,7 +3,7 @@ import React, { useState } from "react";
 // import ShopBannerSection from "@/components/sections/shop/ShopBannerSection";
 import ShopFilterSection from "@/components/sections/shop/ShopFilterSection";
 import Banner from "@/components/banner";
-import ShopPaginationSection from "@/components/sections/shop/ShopPaginationSection";
+// import ShopPaginationSection from "@/components/sections/shop/ShopPaginationSection";
 import ShopProductSection from "@/components/sections/shop/ShopProductSection";
 import Link from "next/link";
 // import { IoIosArrowForward } from "react-icons/io";
@@ -47,7 +47,9 @@ function ShopPage() {
       </div>
       
       <div className="my-[70px]">
-        <ShopPaginationSection />
+        {/* <ShopPaginationSection /> */}
+
+        
       </div>
 
       {/* <ShopBannerSection /> */}

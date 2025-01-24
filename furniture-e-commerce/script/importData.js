@@ -1,12 +1,5 @@
-import { createClient } from '@sanity/client';
-
-const client = createClient({
-  projectId: 'oev1zrbu',
-  dataset: 'production',
-  useCdn: true,
-  apiVersion: '2025-01-13',
-  token: 'sktpsPvPL8riMricV2pyC9vhUUEMa9pbJLB2wolPPF71fmpDEffq7iwieEzRqm9MGXF5t1u1EU19IyPCM3XeCUBcFUaxQf16NfmfjFQGs9GHOPwJjDGtk4EgU73bBUTFO13QUaRSP6khxGhHWyJKOp3AWwqDC5FHmvT8wiN4H7VoqmIu6l1y',
-});
+import { client } from '../src/sanity/lib/client'; // Adjust the path based on your file structure
+import fetch from 'node-fetch';
 
 async function uploadImageToSanity(imageUrl) {
   if (!imageUrl) {
@@ -38,7 +31,6 @@ async function uploadImageToSanity(imageUrl) {
 
 async function uploadProduct(product) {
   try {
-    // Use the correct field for the image URL
     const imageId = await uploadImageToSanity(product.imagePath);
 
     if (imageId) {
@@ -52,7 +44,7 @@ async function uploadProduct(product) {
             _ref: imageId,
           },
         },
-        price: parseFloat(product.price), // Ensure price is a number
+        price: parseFloat(product.price),
         description: product.description,
         discountPercentage: product.discountPercentage,
         isFeaturedProduct: product.isFeaturedProduct,
@@ -73,11 +65,11 @@ async function uploadProduct(product) {
 async function importProducts() {
   try {
     const response = await fetch('https://template-0-beta.vercel.app/api/product');
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    
+
     const products = await response.json();
 
     for (const product of products) {

@@ -6,19 +6,30 @@ import ProductDetailRelatedSection from "@/components/sections/shop/product-deta
 import ProductDetailShowcaseSection from "@/components/sections/shop/product-detail/ProductDetailShowcaseSection";
 import ProductDetailTopSection from "@/components/sections/shop/product-detail/ProductDetailTopSection";
 import { Separator } from "@/components/ui/separator";
-import { PRODUCTS } from "@/lib/constants";
+import { client } from "@/sanity/lib/client";
 
-
-// Define the correct PageProps type
 export interface PageProps {
-  params: { product_id: string };  // Ensure product_id is treated as a string
+  params: { product_id: string };
 }
 
-export default function ProductDetailPage({ params }: PageProps) {
-  const { product_id } = params;  // params are not a promise, so no need to await
+export default async function ProductDetailPage({ params }: PageProps) {
+  const { product_id } = params;
 
-  // Find the product based on product_id
-  const product = PRODUCTS.find((item) => item.id === product_id);
+  // Fetch product details from Sanity
+  const query = `*[_type == "product" && _id == $product_id][0]{
+    _id,
+        price,
+        description,
+       "image": image.asset->url,
+        stockLevel,
+        id,
+        category,
+        discountPercentage,
+        name,
+        isFeaturedProduct,
+  }`;
+
+  const product = await client.fetch(query, { product_id });
 
   // Handle the case where the product is not found
   if (!product) {
@@ -28,11 +39,11 @@ export default function ProductDetailPage({ params }: PageProps) {
   return (
     <div className="mt-24 lg:mt-8">
       <ProductDetailTopSection
-        product_id={product_id}
-        productTitle={product.title}
+        product_id={product._id}
+        productTitle={product.name}
       />
       <div className="mt-8 px-4 md:px-[50px] lg:px-[100px]">
-        <ProductDetailShowcaseSection productId={product_id} />
+        <ProductDetailShowcaseSection productId={product._id} />
       </div>
 
       <div className="my-[41px]">
@@ -54,10 +65,12 @@ export default function ProductDetailPage({ params }: PageProps) {
   );
 }
 
-// Correct the generateStaticParams function
 export async function generateStaticParams() {
-  // Ensure this is async and returns a Promise resolving to an array of params objects
-  return PRODUCTS.map((product) => ({
-    params: { product_id: product.id },
+  // Fetch all products' IDs from Sanity
+  const query = `*[_type == "product"]{ _id }`;
+  const products = await client.fetch(query);
+
+  return products.map((product: { _id: string }) => ({
+    product_id: product._id,
   }));
 }

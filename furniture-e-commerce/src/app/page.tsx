@@ -5,9 +5,11 @@ import Hero2 from "@/components/hero2";
 import Blogs1 from "@/components/blogs";
 import Insta from "@/components/insta";
 import Head from "@/components/head";
+// import { fetchData } from "../../migration";
 
 
 export default function Home() {
+  // await fetchData()
   return (
    <div className="">
     <Head/>
@@ -16,6 +18,7 @@ export default function Home() {
 {/* <Hero3/> */}
 <Blogs1/>
 <Insta/>
+
    </div>
   );
 }

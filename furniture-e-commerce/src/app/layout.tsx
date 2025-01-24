@@ -8,7 +8,7 @@ import { Toaster } from '@/components/ui/toaster'
 import LoadingIndicator from '@/components/common/LoadingIndicator'
 
 export const metadata: Metadata = {
-  title: 'Ecommerce Sofa',
+  title: 'Ecommerce furniture',
   description: 'Get any furniture items on the fly',
 }
 

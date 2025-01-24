@@ -1,16 +1,16 @@
 "use client";
 
-import React, {useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Separator } from "@/components/ui/separator";
 import ReactStars from "react-stars";
 import Image from "next/image";
 import MainButton from "@/components/common/MainButton";
 import { MinusIcon, PlusIcon } from "lucide-react";
-import { PRODUCTS } from "@/lib/constants";
 import { useAtom } from "jotai";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { cartAtom } from "@/lib/storage/jotai";
+import { client } from "@/sanity/lib/client";
 
 export default function ProductDetailShowcaseSection({
   productId,
@@ -20,7 +20,7 @@ export default function ProductDetailShowcaseSection({
   const MAX_QUANTITY = 10;
   const [selectedSize, setSelectedSize] = useState<string>("XS");
   const sizeOptions = ["XS", "L", "XL"];
-  const [selectedColor, setSelectedColor] = useState<string | null>(null); // Tracks the selected color
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const colorOptions = [
     { color: "#816DFA" },
     { color: "#000000" },
@@ -34,27 +34,36 @@ export default function ProductDetailShowcaseSection({
     "/images/Maya sofa three seater (1) 1.png",
   ];
 
-  const extraDetailsData = [
-    { item: "SKU", value: "SS001" },
-    { item: "Category", value: "Sofas" },
-    { item: "Tags", value: "Sofa, Chair, Home, Shop" },
-    {
-      item: "Share",
-      value: (
-        <div className="flex gap-[23px]">
-          <Image src="/images/facebook.png" alt="Facebook" width={24} height={24} />
-          <Image src="/images/linkedin.png" alt="LinkedIn" width={24} height={24} />
-          <Image src="/images/twitter.png" alt="Twitter" width={24} height={24} />
-        </div>
-      ),
-    },
-  ];
+ 
 
   const [quantity, setQuantity] = useState(1);
   const [cart, setCart] = useAtom(cartAtom);
   const { toast } = useToast();
+  const [specificProduct, setSpecificProduct] = useState<any>(null);
 
-  const specificProduct = PRODUCTS.find((product) => product.id === productId);
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const query = `*[_type == "product" && _id == $productId][0]{
+        _id,
+        price,
+        description,
+       "image": image.asset->url,
+        stockLevel,
+        id,
+        category,
+        discountPercentage,
+        name,
+        isFeaturedProduct,
+     }`;
+
+      const product = await client.fetch(query, { productId });
+      setSpecificProduct(product);
+    };
+
+    fetchProduct();
+  }, [productId]);
+
+  if (!specificProduct) return <p>Product not found.</p>;
 
   const handleQuantityDecrement = () => {
     if (quantity > 1) setQuantity(quantity - 1);
@@ -64,9 +73,14 @@ export default function ProductDetailShowcaseSection({
     if (quantity < MAX_QUANTITY) setQuantity(quantity + 1);
   };
 
+  
+
+  
+  
+  
   const handleAddToCart = () => {
     const productInCart = cart.find((product) => product.id === productId);
-
+  
     if (productInCart) {
       const updatedCart = cart.map((product) =>
         product.id === productId
@@ -74,15 +88,15 @@ export default function ProductDetailShowcaseSection({
           : product
       );
       setCart(updatedCart);
-    } else if (specificProduct?.price) {
-      const cleanedPrice = parseFloat(specificProduct.price.replace(/,/g, ""));
+    } else if (specificProduct?.price !== undefined) {
       const newProduct = {
         id: productId,
-        productImageUrl: specificProduct.imageUrl,
-        productName: specificProduct.title,
+        productImageUrl: specificProduct.image,
+        productName: specificProduct.name,
         quantity,
-        unitPrice: cleanedPrice,
+        unitPrice: specificProduct.price, // Directly use the numeric price
       };
+  
       setCart((prevCart) => [...prevCart, newProduct]);
     } else {
       toast({
@@ -92,15 +106,20 @@ export default function ProductDetailShowcaseSection({
       });
       return;
     }
-
+  
     toast({
       title: "Success",
       description: "Product added to cart successfully.",
       action: <ToastAction altText="Close">Close</ToastAction>,
     });
   };
+  
 
-  if (!specificProduct) return <p>Product not found.</p>;
+
+
+
+
+
 
   return (
     <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -120,8 +139,8 @@ export default function ProductDetailShowcaseSection({
         </div>
         <div className="flex flex-col bg-[#FFF9E5] rounded-md justify-center items-center h-[650px]">
           <Image
-            src={specificProduct.imageUrl}
-            alt={specificProduct.title}
+            src={specificProduct.image }  // Fallback image
+            alt={specificProduct.name || 'No Image Available'}
             width={550}
             height={500}
             className="object-cover rounded-md"
@@ -132,18 +151,14 @@ export default function ProductDetailShowcaseSection({
 
       {/* Right Section */}
       <div>
-        <h1 className="text-[42px]">{specificProduct.title}</h1>
-        <p className="text-customGray text-[24px] font-medium">Rs. {specificProduct.price}</p>
+        {/* <h1 className="text-[42px]">{specificProduct.title}</h1> */}
+        <p className="text-customGray text-[24px] font-medium">${specificProduct.price}</p>
         <div className="flex items-center gap-[22px] mt-2">
           <ReactStars count={5} value={4} size={24} color2="#FFC700" />
           <Separator orientation="vertical" className="h-[40px] border border-customGray2" />
           <p>5 Customer Reviews</p>
         </div>
-        <p className="mt-4">
-          Setting the bar as one of the loudest speakers in its class, the
-          Kilburn is a compact, stout-hearted hero with a well-balanced audio
-          which boasts a clear midrange and extended highs for a sound.
-        </p>
+        <p className="mt-4">{specificProduct.description}</p>
 
         {/* Size Options */}
         <div className="mt-4">
@@ -152,9 +167,7 @@ export default function ProductDetailShowcaseSection({
             {sizeOptions.map((size) => (
               <button
                 key={size}
-                className={`px-4 py-2 border rounded-md ${
-                  selectedSize === size ? "bg-[#FBEBB5] text-black" : "bg-[#FAF4F4]"
-                }`}
+                className={`px-4 py-2 border rounded-md ${selectedSize === size ? "bg-[#FBEBB5] text-black" : "bg-[#FAF4F4]"}`}
                 onClick={() => setSelectedSize(size)}
               >
                 {size}
@@ -170,9 +183,7 @@ export default function ProductDetailShowcaseSection({
             {colorOptions.map(({ color }, index) => (
               <button
                 key={index}
-                className={`w-8 h-8 rounded-full border ${
-                  selectedColor === color ? "ring-2 ring-offset-2 ring-[#91876a]" : ""
-                }`}
+                className={`w-8 h-8 rounded-full border ${selectedColor === color ? "ring-2 ring-offset-2 ring-[#91876a]" : ""}`}
                 style={{ backgroundColor: color }}
                 onClick={() => setSelectedColor(color)}
               />
@@ -198,12 +209,33 @@ export default function ProductDetailShowcaseSection({
         <div className="mt-8">
           <Separator className="border-[#D9D9D9]" />
           <div className="mt-4 space-y-2">
-            {extraDetailsData.map((detail, index) => (
-              <div key={index} className="flex gap-4">
-                <p className="text-[#9F9F9F]">{detail.item}:</p>
-                <div>{detail.value}</div>
-              </div>
-            ))}
+        <p className="text-customGray text-[24px] font-medium"></p>
+
+          
+        <div className="flex gap-4 flex-wrap">
+  <div className="flex gap-4">
+    <p className="text-[#9F9F9F]">SKU:</p>
+    <div>SS001</div>
+  </div>
+  
+  <div className="w-full flex gap-4">
+    <p className="text-[#9F9F9F]">Category:</p>
+    <div>{specificProduct.category}</div>
+  </div>
+
+  <div className="flex gap-4">
+    <p className="text-[#9F9F9F]">Tags:</p>
+    <div>Sofa, Chair, Home, Shop</div>
+  </div>
+</div>
+
+
+              <div className="flex gap-[23px]">
+          <Image src="/images/facebook.png" alt="Facebook" width={24} height={24} />
+          <Image src="/images/linkedin.png" alt="LinkedIn" width={24} height={24} />
+          <Image src="/images/twitter.png" alt="Twitter" width={24} height={24} />
+        </div>
+          
           </div>
         </div>
       </div>
