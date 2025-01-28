@@ -1,0 +1,5 @@
+Test Case ID,Test Case Description,Test Steps,Expected Result,Actual Result,Status,Severity Level,Assigned To,Remarks
+TC001,Validate product listing page ,Open Product page >Varify products,Products Displayed Correctly,Products displayed Corretly,Passed,Low,-,No issue
+TC002,Test API Error handling,Disconect API Refresh page,Show fallback UI with error message,Error message show,Passed,Medium,-,Handle gracefully
+TC003,Check Cart Functionality,Add Product to Cart >Verify Cart Contents,Cart Updates with added Product ,Cart updates as expected,Passed,High,-,Work as expected
+TC004,Responsiveness on mobile,Resize Browser Window >Check layout,Layout adjusts properly to screen size,Responsive layout working as intended,Passed,Medium,-,Test successfully
