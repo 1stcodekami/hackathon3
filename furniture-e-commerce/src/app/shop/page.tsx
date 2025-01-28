@@ -12,7 +12,7 @@ import F_banner from '@/components/footerbanner';
 
 function ShopPage() {
   const [itemCount, setItemCount] = useState<number>(16);
-  const { searchTerm } = useSearch();
+  const { /*searchTerm */} = useSearch();
 
   return (
     <section>
