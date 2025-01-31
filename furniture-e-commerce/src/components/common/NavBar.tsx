@@ -1,6 +1,6 @@
-'use client'
-import React, { useState } from "react";
-import { usePathname } from "next/navigation";
+"use client";
+import React, { useState, useRef, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { MenuIcon, X } from "lucide-react";
 import Link from "next/link";
 import CartSection from "../sections/shop/CartSection";
@@ -15,9 +15,10 @@ function NavBar() {
   const [showCart, setShowCart] = useState(false);
   const [menu, setMenu] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const searchRef = useRef<HTMLDivElement | null>(null); // Typed ref
   const cartValue = useAtomValue(cartAtom);
   const { setSearchTerm, searchTerm } = useSearch();
-
+  const router = useRouter();
   const pathname = usePathname();
 
   const links = [
@@ -37,27 +38,57 @@ function NavBar() {
     setMenu(!menu);
   };
 
-  const handleSearchIconClick = () => {
-    setIsSearchVisible(!isSearchVisible);
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim() !== "") {
+      router.push(`/shop?search=${encodeURIComponent(searchTerm)}`);
+    }
   };
+
+  const handleSearchIconClick = () => {
+    setIsSearchVisible(true);
+  };
+
+  // Close search box when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setIsSearchVisible(false);
+      }
+    };
+
+    if (isSearchVisible) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isSearchVisible]);
 
   const navBarBackground = pathname === "/" ? "bg-[#FBEBB5]" : "bg-white";
 
   return (
     <div className="relative">
+      {/* Background overlay when cart is visible */}
+      {showCart && (
+        <div className="fixed inset-0 bg-black/20 z-[98]" onClick={() => setShowCart(false)}></div>
+      )}
+
       <div className={`md:sticky font-poppins pt-2 md:top-0 md:shadow-none z-20 relative ${navBarBackground}`}>
         <div className="hidden lg:block animate-in fade-in zoom-in p-4">
           <div className="flex justify-between mx-[41px] items-center">
             <div></div>
             <div className="flex gap-[20px] xl:gap-[50px] text-[16px] items-center select-none">
               {links.map((link, index) => (
-                <Link href={link.link} key={index} className={`hover:text-primary cursor-pointer flex items-center gap-2 font-[500] text-gray`}>
+                <Link href={link.link} key={index} className="hover:text-primary cursor-pointer flex items-center gap-2 font-[500] text-gray">
                   <p>{link.title}</p>
                 </Link>
               ))}
             </div>
             <div className="flex items-center gap-[40px] select-none">
-              <div className="relative">
+              {/* Search Section */}
+              <div className="relative" ref={searchRef}>
                 <Image
                   src="/images/search_icon.png"
                   alt="search icon"
@@ -67,11 +98,11 @@ function NavBar() {
                   className="cursor-pointer"
                 />
                 {isSearchVisible && (
-                  <form className="absolute left-[-210px]" onSubmit={(e) => e.preventDefault()}>
+                  <form className="absolute left-[-210px]" onSubmit={handleSearchSubmit}>
                     <input
                       type="text"
                       id="default-search"
-                      className="block w-[200px] p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      className="block w-[200px] p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Search products..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
@@ -79,6 +110,8 @@ function NavBar() {
                   </form>
                 )}
               </div>
+
+              {/* Icons */}
               {icons.map((icon, index) => (
                 <div key={index} className="relative">
                   <Image
@@ -89,21 +122,21 @@ function NavBar() {
                     height={25}
                     className="cursor-pointer"
                   />
-                  {icon?.badgeValue ? (
+                  {icon.badgeValue ? (
                     <Badge variant="destructive" className="absolute -top-3 -right-5">
-                      {icon?.badgeValue}
+                      {icon.badgeValue}
                     </Badge>
-                  ) : (
-                    <div></div>
-                  )}
+                  ) : null}
                 </div>
               ))}
             </div>
           </div>
         </div>
+
+        {/* Mobile Navbar */}
         <div className={`block lg:hidden shadow-sm font-poppins fixed top-0 w-full z-[999] py-4 animate-in fade-in zoom-in ${menu ? "!bg-[#FFF3E3] py-2" : ""}`}>
           <div className="flex justify-between mx-[10px]">
-            <div className=""></div>
+            <div></div>
             <div className="flex items-center gap-[40px]">
               {menu ? (
                 <X className="cursor-pointer animate-in fade-in zoom-in text-black" onClick={toggleMenu} />
@@ -130,16 +163,15 @@ function NavBar() {
           )}
         </div>
       </div>
+
+      {/* Cart Section */}
       {showCart && (
-        <div className="hidden md:block absolute animate-out left-0 right-0 top-0 h-screen bg-black/20 z-[99]" onClick={() => setShowCart(!showCart)}></div>
-      )}
-      <div className="hidden md:block md:absolute top-0 right-0 z-[100]">
-        {showCart && (
+        <div className="fixed top-0 right-0 z-[100] w-full md:w-auto">
           <RemoveScroll>
             <CartSection toggleShowCart={() => setShowCart(!showCart)} />
           </RemoveScroll>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

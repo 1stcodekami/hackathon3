@@ -137,16 +137,16 @@ export default function ProductDetailShowcaseSection({
             />
           ))}
         </div>
-        <div className="flex flex-col bg-[#FFF9E5] rounded-md justify-center items-center h-[650px]">
-          <Image
-            src={specificProduct.image }  // Fallback image
-            alt={specificProduct.name || 'No Image Available'}
-            width={550}
-            height={500}
-            className="object-cover rounded-md"
-            priority
-          />
-        </div>
+        <div className="flex flex-col bg-[#FFF9E5] rounded-md justify-center items-center h-[650px] overflow-hidden">
+  <Image
+    src={specificProduct.image}  // Fallback image
+    alt={specificProduct.name || 'No Image Available'}
+    width={550}
+    height={500}
+    className="object-cover rounded-md w-full h-full"
+    priority
+  />
+</div>
       </div>
 
       {/* Right Section */}
