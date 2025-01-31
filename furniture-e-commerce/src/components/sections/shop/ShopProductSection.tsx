@@ -25,7 +25,7 @@ interface ShopProductSectionProps {
 
 const ShopProductSection: React.FC<ShopProductSectionProps> = ({ itemCount }) => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [isSearchVisible, setIsSearchVisible] = useState(false); // State to toggle search bar
+  //const [isSearchVisible, setIsSearchVisible] = useState(false); // State to toggle search bar
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const { searchTerm} = useSearch(); // Use global search term
   const router = useRouter();
