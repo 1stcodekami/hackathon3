@@ -55,9 +55,9 @@ const ShopProductSection: React.FC<ShopProductSectionProps> = ({ itemCount }) =>
     router.push(`/shop/product/${id}`);
   };
 
-  const handleSearchIconClick = () => {
-    setIsSearchVisible(!isSearchVisible); // Toggle search bar visibility
-  };
+  // const handleSearchIconClick = () => {
+  //   setIsSearchVisible(!isSearchVisible); // Toggle search bar visibility
+  // };
 
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
