@@ -1,3 +1,5 @@
+// src\components\sections\shop\CartSection.tsx
+
 "use client";
 
 import React, {useMemo, useCallback } from "react";

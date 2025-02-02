@@ -1,3 +1,4 @@
+// src/app/layout.tsx
 import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
 import './globals.css';
@@ -6,9 +7,10 @@ import Footer from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
 import LoadingIndicator from '@/components/common/LoadingIndicator';
 import { SearchProvider } from '@/context/SearchContext'; // Import the SearchProvider
+import { WishlistProvider } from '@/context/WishlistContext';
 
 export const metadata: Metadata = {
-  title: 'Ecommerce furniture',
+  title: 'Furniture Ecommerce',
   description: 'Get any furniture items on the fly',
 };
 
@@ -21,12 +23,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SearchProvider>
           <main className="bg-white">
             <LoadingIndicator />
+            <WishlistProvider>
+          
             <NavBar />
-            {children}
+           {children}
             <Toaster />
             <div className="mt-[56px]">
               <Footer />
             </div>
+          </WishlistProvider>
+
           </main>
         </SearchProvider>
       </body>

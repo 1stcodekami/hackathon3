@@ -10,6 +10,7 @@ import { Badge } from "../ui/badge";
 import { cartAtom } from "@/lib/storage/jotai";
 import Image from "next/image";
 import { useSearch } from "@/context/SearchContext";
+import { useWishlist } from "@/context/WishlistContext"; // Import Wishlist Context
 
 function NavBar() {
   const [showCart, setShowCart] = useState(false);
@@ -18,6 +19,7 @@ function NavBar() {
   const searchRef = useRef<HTMLDivElement | null>(null); // Typed ref
   const cartValue = useAtomValue(cartAtom);
   const { setSearchTerm, searchTerm } = useSearch();
+  const { wishlist } = useWishlist(); // Access wishlist context
   const router = useRouter();
   const pathname = usePathname();
 
@@ -30,7 +32,7 @@ function NavBar() {
 
   const icons = [
     { iconUrl: "/images/user_icon.png", alt: "user icon", action: () => console.log("You just clicked on the user icon") },
-    { iconUrl: "/images/heart_icon.png", alt: "heart icon", action: () => console.log("You just clicked on the heart icon") },
+    { iconUrl: "/images/heart_icon.png", alt: "heart icon", action: () => router.push("/wishlist") }, // Navigate to wishlist page
     { iconUrl: "/images/cart_icon.png", alt: "cart icon", action: () => setShowCart(!showCart), badgeValue: cartValue?.length },
   ];
 
@@ -122,11 +124,18 @@ function NavBar() {
                     height={25}
                     className="cursor-pointer"
                   />
-                  {icon.badgeValue ? (
+                  {/* Wishlist Badge */}
+                  {icon.alt === "heart icon" && wishlist.length > 0 && (
                     <Badge variant="destructive" className="absolute -top-3 -right-5">
-                      {icon.badgeValue}
+                      {wishlist.length}
                     </Badge>
-                  ) : null}
+                  )}
+                  {/* Cart Badge */}
+                  {icon.alt === "cart icon" && cartValue && cartValue.length > 0 && (
+                    <Badge variant="destructive" className="absolute -top-3 -right-5">
+                      {cartValue.length}
+                    </Badge>
+                  )}
                 </div>
               ))}
             </div>
@@ -155,7 +164,28 @@ function NavBar() {
                 ))}
                 <div className="flex flex-col gap-[40px] select-none">
                   {icons.map((icon, index) => (
-                    <Image src={icon.iconUrl} onClick={icon.action} alt={icon.alt} key={index} width={30} height={30} className="cursor-pointer w-[28px] h-[28px] object-contain" />
+                    <div key={index} className="relative">
+                      <Image
+                        src={icon.iconUrl}
+                        onClick={icon.action}
+                        alt={icon.alt}
+                        width={30}
+                        height={30}
+                        className="cursor-pointer w-[28px] h-[28px] object-contain"
+                      />
+                      {/* Wishlist Badge */}
+                      {icon.alt === "heart icon" && wishlist.length > 0 && (
+                        <Badge variant="destructive" className="absolute -top-3 -right-5">
+                          {wishlist.length}
+                        </Badge>
+                      )}
+                      {/* Cart Badge */}
+                      {icon.alt === "cart icon" && cartValue && cartValue.length > 0 && (
+                        <Badge variant="destructive" className="absolute -top-3 -right-5">
+                          {cartValue.length}
+                        </Badge>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>

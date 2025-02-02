@@ -152,7 +152,7 @@ export default function ProductDetailShowcaseSection({
       {/* Right Section */}
       <div>
         {/* <h1 className="text-[42px]">{specificProduct.title}</h1> */}
-        <p className="text-customGray text-[24px] font-medium">${specificProduct.price}</p>
+        <p className="text-customGray text-[24px] font-medium">Rs.{specificProduct.price}</p>
         <div className="flex items-center gap-[22px] mt-2">
           <ReactStars count={5} value={4} size={24} color2="#FFC700" />
           <Separator orientation="vertical" className="h-[40px] border border-customGray2" />
