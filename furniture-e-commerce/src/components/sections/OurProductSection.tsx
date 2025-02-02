@@ -91,15 +91,15 @@ const OurProductSection: React.FC = () => {
               >
                 {item.name}
               </p>
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center mt-2">
                 <p className="font-poppins text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-semibold text-center">
-                  ${item.price}.00
+                  Rs.{item.price}.00
                 </p>
-                {item.discountPercentage && (
-                  <p className="line-through text-gray-500">
-                    {`Rs. ${(item.price / (1 - item.discountPercentage / 100)).toFixed(2)}`}
-                  </p>
-                )}
+                {item.discountPercentage !== undefined && item.discountPercentage > 0 && ( // Check if discountPercentage exists and is greater than 0
+      <h6 className="line-through pl-2 text-gray-500">
+        {`Rs. ${(item.price / (1 - item.discountPercentage / 100)).toFixed(2)}`}
+      </h6>
+    )}
               </div>
             </div>
           </div>

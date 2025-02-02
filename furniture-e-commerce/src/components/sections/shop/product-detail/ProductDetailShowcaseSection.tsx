@@ -213,6 +213,14 @@ export default function ProductDetailShowcaseSection({
 
           
         <div className="flex gap-4 flex-wrap">
+ 
+
+        <div className="w-full flex gap-4">
+    <p className="text-[#9F9F9F]">Stock Level:</p>
+    <div>{specificProduct.stockLevel}</div>
+  </div>
+
+ 
   <div className="flex gap-4">
     <p className="text-[#9F9F9F]">SKU:</p>
     <div>SS001</div>

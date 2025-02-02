@@ -157,7 +157,7 @@ const ShopProductSection: React.FC<ShopProductSectionProps> = ({ itemCount }) =>
     {item.name}
   </h6>
   <div className="flex justify-between items-center mt-2">
-    <h6 className="text-gray-600">Rs.{item.price}.00</h6>
+    <h6 className="text-gray-600 font-semibold">Rs.{item.price}.00</h6>
     {item.discountPercentage !== undefined && item.discountPercentage > 0 && ( // Check if discountPercentage exists and is greater than 0
       <h6 className="line-through text-gray-500">
         {`Rs. ${(item.price / (1 - item.discountPercentage / 100)).toFixed(2)}`}
